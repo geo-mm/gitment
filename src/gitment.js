@@ -86,12 +86,13 @@ class Gitment {
 
     const query = Query.parse()
     if (query.code) {
-      const { client_id, client_secret } = this.oauth
+      const { client_id, client_secret, oauth_service } = this.oauth
       const code = query.code
       delete query.code
       const search = Query.stringify(query)
       const replacedUrl = `${window.location.origin}${window.location.pathname}${search}${window.location.hash}`
       history.replaceState({}, '', replacedUrl)
+      const oauth_host = (!!oauth_service) ? oauth_server : 'https://github.com/login/oauth/access_token'
 
       Object.assign(this, {
         id: replacedUrl,
@@ -99,7 +100,7 @@ class Gitment {
       }, options)
 
       this.state.user.isLoggingIn = true
-      http.post('https://gh-oauth.imsun.net', {
+      http.post(oauth_host, {
           code,
           client_id,
           client_secret,
